@@ -27,4 +27,11 @@ router.post("/addmember",async(req,res)=>
 })
 })
 
+router.get("/viewmember",async(req,res)=>
+{
+    let projection = "-id -_v -age -place -height -weight -bloodGroup -password"; // Using string syntax to exclude fields
+    let result = await MemberModel.find({}, projection); // Apply projection in find
+    res.json(result);
+})
+
 module.exports=router
