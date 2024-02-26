@@ -26,5 +26,12 @@ router.post("/addmember",async(req,res)=>
     )
 })
 })
+router.post("/search",async(req,res)=>
+{
+    let input=req.body
+    let data=await MemberModel.find(input)
+    res.json(data)
+})
+
 
 module.exports=router
