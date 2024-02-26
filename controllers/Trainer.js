@@ -1,5 +1,5 @@
 const express = require("express")
-const addtrainermodel = require("../model/addtrainermodel")
+const addtrainermodel = require("../Models/trainermodel")
 const bcrypt = require("bcryptjs")
 const router = express.Router()
 

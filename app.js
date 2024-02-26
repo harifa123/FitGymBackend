@@ -1,8 +1,8 @@
 const express=require("express")
 const cors=require("cors")
 const mongoose=require("mongoose")
-const gymrouter=require("./controllers/AddTrainer")
-const packageRouter = require("./Controller/addPackageRouter")
+const trainerrouter=require("./controllers/Trainer")
+const packageRouter = require("./controllers/PackageRouter")
 
 const app=express()
 
@@ -12,8 +12,8 @@ app.use(cors())
 
 mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority&appName=Cluster0")
 
-app.use('/api/gym',gymrouter)
+app.use('/api/trainer',trainerrouter)
 
-app.use("/api/fitgym",packageRouter)
+app.use("/api/package",packageRouter)
 
 app.listen(3001,()=>{console.log("Server Running")})
