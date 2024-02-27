@@ -49,7 +49,7 @@ router.post("/signin",async(req,res)=>{
         return res.json({status:"incorrect password"})
     }
 
-    let packageId = data.packageId; // Assuming this field exists in MemberModel
+    let packageId = data.packageId; 
     let packageData = await Package.findById(packageId);
     
     res.json({status:"success","userdata":{
@@ -62,7 +62,7 @@ router.post("/signin",async(req,res)=>{
         packageName:packageData.packageName,
         packageDescription:packageData.packageDes,
         packageAmount:packageData.packageAmount
-        // Add any other properties you want to include
+       
       }
 
 })
