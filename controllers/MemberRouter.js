@@ -51,6 +51,12 @@ router.post("/signin",async(req,res)=>{
     res.json({status:"success","userdata":data})
     
 })
+router.post("/search",async(req,res)=>
+{
+    let input=req.body
+    let data=await MemberModel.find(input)
+    res.json(data)
+})
 
 router.post("/search",async(req,res)=>
 {
