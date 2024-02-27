@@ -21,4 +21,10 @@ router.post('/addtrainer', async (req, res) => {
         })
 
 })
+
+router.get("/viewtrainers", async(req,res)=>{
+    let trainers = await trainerModel.find()
+    res.json(trainers)
+})
+
 module.exports = router
