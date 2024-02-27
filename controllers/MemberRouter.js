@@ -66,4 +66,14 @@ router.post("/deletemember",async(req,res)=>{
     })
 })
 
+router.post("/viewprofile", async (req, res) => {
+    let data = req.body._id
+    console.log(data)
+    let result = await MemberModel.find(data)
+    console.log(result)
+    // res.json(result)
+})
+
+
+
 module.exports=router

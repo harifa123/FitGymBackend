@@ -1,21 +1,26 @@
-const express=require("express")
-const cors=require("cors")
-const mongoose=require("mongoose")
-const trainerrouter=require("./controllers/Trainer")
+const express = require("express")
+const cors = require("cors")
+const mongoose = require("mongoose")
+const trainerrouter = require("./controllers/Trainer")
 const packageRouter = require("./controllers/PackageRouter")
-const memberRouter=require("./controllers/MemberRouter")
+const memberRouter = require("./controllers/MemberRouter")
 
-const app = express();
+const app = express()
 
-app.use(express.json());
-app.use(cors());
+app.use(express.json())
+app.use(cors())
 
-mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority")
 
-app.use('/api/trainer',trainerrouter)
+//  mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority")
+ mongoose.connect("mongodb+srv://arun:arun123@cluster0.5bjnd.mongodb.net/gymDb?retryWrites=true&w=majority",
+ { useNewUrlParser: true })
 
-app.use("/api/package",packageRouter)
+app.use('/api/trainer', trainerrouter)
 
-app.use("/api/member",memberRouter)
+app.use("/api/package", packageRouter)
 
-app.listen(3001,()=>{console.log("Server Running")})
+app.use("/api/member", memberRouter)
+
+app.listen(3001, () => {
+    console.log("Server Running")
+})

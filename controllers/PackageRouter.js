@@ -1,5 +1,7 @@
 const express = require("express")
 const packageModel = require("../Models/Package")
+const memberModel=require("../Models/MemberModel")
+const updatePackageModel=require("../Models/updateModel")
 
 const router = express.Router()
 
@@ -7,7 +9,7 @@ router.post("/addpackage",async(req,res)=>{
     let data = req.body
     let addPackage = packageModel(data)
     let result = addPackage.save()
-    res.json({status:"successs"})
+    res.json({status:"success"})
 })
 
 router.post("/updatepackage", async (req, res) => {
@@ -36,8 +38,13 @@ router.post("/updatepackage", async (req, res) => {
         let update = new updatePackageModel({ userId: userid, packageId: packageid })
         let dataSave = await update.save()
     }
-    res.json({ status: "successs" })
+    res.json({ status: "success" })
 
+})
+
+router.get("/viewallpackage", async (req, res) => {
+    let data = await packageModel.find()
+    res.json(data)
 })
 
 
