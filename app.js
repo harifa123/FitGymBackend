@@ -11,8 +11,7 @@ app.use(express.json())
 app.use(cors())
 
 
-// mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority")
-mongoose.connect("mongodb+srv://abhinandh:jazz9333@cluster0.ubk8s.mongodb.net/gymdb?retryWrites=true&w=majority",
+mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority",
 {
     useNewUrlParser:true
 })
