@@ -1,6 +1,7 @@
 const express=require("express")
 const MemberModel = require("../Models/MemberModel")
 const bcrypt = require("bcryptjs")
+const Package = require("../Models/Package")
 
 hashPasswordGenerator = async (pass) => {
     const salt = await bcrypt.genSalt(10)
@@ -47,8 +48,24 @@ router.post("/signin",async(req,res)=>{
     {
         return res.json({status:"incorrect password"})
     }
+
+    let packageId = data.packageId; // Assuming this field exists in MemberModel
+    let packageData = await Package.findById(packageId);
     
-    res.json({status:"success","userdata":data})
+    res.json({status:"success","userdata":{
+        name: data.name,
+        place:data.place,
+        age:data.age,
+        height:data.height,
+        weight:data.weight,
+        bloodGroup:data.bloodGroup,
+        packageName:packageData.packageName,
+        packageDescription:packageData.packageDes,
+        packageAmount:packageData.packageAmount
+        // Add any other properties you want to include
+      }
+
+})
     
 })
 router.post("/search",async(req,res)=>
