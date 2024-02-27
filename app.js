@@ -5,11 +5,10 @@ const trainerrouter=require("./controllers/Trainer")
 const packageRouter = require("./controllers/PackageRouter")
 const memberRouter=require("./controllers/MemberRouter")
 
-const app=express()
+const app = express();
 
-app.use(express.json())
-app.use(cors())
-
+app.use(express.json());
+app.use(cors());
 
 mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority")
 
