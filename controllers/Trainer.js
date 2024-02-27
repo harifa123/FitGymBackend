@@ -26,5 +26,18 @@ router.get("/viewtrainers", async(req,res)=>{
     let trainers = await trainerModel.find()
     res.json(trainers)
 })
+
+router.post("/searchtrainer",async(req,res)=>{
+    let input = req.body
+    let trainer = await trainerModel.find(input)
+    res.json(trainer)
+})
+
+router.post("/deletetrainer",async(req,res)=>{
+    let input = req.body
+    let response = await trainerModel.deleteOne(input)
+    res.json({status:"success"})
+})
+
 module.exports = router
 
