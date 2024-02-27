@@ -58,6 +58,12 @@ router.post("/search",async(req,res)=>
     res.json(data)
 })
 
-
+router.post("/deletemember",async(req,res)=>{
+    let input=req.body
+    let response=await MemberModel.deleteOne(input)
+    res.json({
+        "status":"success"
+    })
+})
 
 module.exports=router
