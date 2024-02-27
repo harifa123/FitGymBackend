@@ -14,38 +14,6 @@ async function hashPasswordGenerator(password) {
     }
 }
 
-async function calculateDueAmount(packagePrice, registrationDate, lastPackageUpdateDate, upgradeDate, upgradeInfo, newPackagePrice = packagePrice, millisecondsPerDay) {
-    let daysWorked = 0;
-    if (upgradeDate) {
-        const daysDifference = Math.round(Math.abs((upgradeDate - lastPackageUpdateDate) / millisecondsPerDay));
-        daysWorked = daysDifference;
-    } else {
-        const currentDate = new Date();
-        const daysDifference = Math.round(Math.abs((currentDate - lastPackageUpdateDate) / millisecondsPerDay));
-        daysWorked = daysDifference;
-    }
-
-    let dueAmount = 0;
-    if (upgradeDate) {
-        const remainingDaysInCurrentPackage = Math.max(0, 30 - daysWorked);
-        let actualNewPackagePrice = newPackagePrice;
-        if (upgradeInfo) {
-            actualNewPackagePrice = upgradeInfo.newPackagePrice;
-        }
-        let remainingDaysCost = 0;
-        if (upgradeInfo) {
-            remainingDaysCost = upgradeInfo.newPackageDailyRate ? remainingDaysInCurrentPackage * upgradeInfo.newPackageDailyRate : upgradeInfo.newPackageRemainingPeriodCost || 0;
-        } else {
-            console.error("Missing information");
-        }
-        dueAmount = (daysWorked * (packagePrice / 30)) + remainingDaysCost;
-    } else {
-        dueAmount = packagePrice;
-    }
-
-    return dueAmount;
-}
-
 const router = express.Router();
 
 router.get("/packages", async (req, res) => {
@@ -60,76 +28,97 @@ router.get("/packages", async (req, res) => {
 router.post("/addmember", async (req, res) => {
     let { data } = { "data": req.body };
     let password = data.password;
+
     try {
         const package = await PackageModel.findById(data.packageId);
         if (!package) {
             return res.status(400).json({ error: "Invalid package" });
-        }
+        }  
+
+        hashPasswordGenerator(data.password, package).then(async (hashedpassword) => {
+            console.log(hashedpassword);
+            data.password = hashedpassword;
+
+            try {
+                let member = new MemberModel(data);
+                member.previousPackageAmount = package.packageAmount;
+                //member.lastPackageUpdateDate = new Date();
+                let result = await member.save();
+                res.json({ status: "success" });
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
+});
 
-    hashPasswordGenerator(password).then(async (hashedpassword) => {
-        console.log(hashedpassword);
-        data.password = hashedpassword;
+router.get("/view_all", async (req, res) => {
+  try {
+    const members = await MemberModel.find().populate("packageId");
 
-        try {
-            let member = new MemberModel(data);
-            let result = await member.save();
-            res.json({ status: "success" });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
+    const membersWithDetails = await Promise.all(
+      members.map(async (member) => {
+        let dueAmount = 0;
+        let remainingDaysForNextDue = 0;
+
+        const currentDate = new Date();
+        const registrationDate = new Date(member.registerDate);
+        const lastUpdateDate = member.lastPackageUpdateDate ? new Date(member.lastPackageUpdateDate) : null;
+
+        console.log("Current Date:", currentDate);
+        console.log("Registration Date:", registrationDate);
+
+        // Calculate total days since registration
+        const daysWorked = Math.ceil(
+          (currentDate - registrationDate) / (1000 * 60 * 60 * 24)
+        );
+
+        console.log("Days Worked:", daysWorked);
+
+        // Calculate remaining days for next due payment
+        remainingDaysForNextDue = 30 - (daysWorked % 30);
+
+        console.log("Remaining Days for Next Due:", remainingDaysForNextDue);
+
+        let oldPackageAmount = 0;
+        if (lastUpdateDate) {
+          // Use the explicitly stored previous package price
+          oldPackageAmount = member.previousPackageAmount;
+          const oldPackageAmountperwrok = parseFloat(oldPackageAmount) / 30 * daysWorked;
+          console.log("oldPackageAmountperwrok:", oldPackageAmountperwrok); // Access directly from member object
+
+          const newPackageAmount = (parseFloat(member.packageId.packageAmount) / 30) * remainingDaysForNextDue;
+          console.log("newPackageAmount:", newPackageAmount);
+          dueAmount = oldPackageAmountperwrok + newPackageAmount;
+        } else {
+          // No update, use current package directly
+          oldPackageAmount = (parseFloat(member.previousPackageAmount));
+          dueAmount = oldPackageAmount;
         }
-    });
+
+        console.log("Due Amount:", dueAmount);
+
+        return {
+          name: member.name,
+          email: member.email,
+          package_name: member.packageId.packageName,
+          dueAmount: dueAmount.toFixed(2),
+          remainingDaysForNextDue: remainingDaysForNextDue >= 0 ? remainingDaysForNextDue : 0,
+        };
+      })
+    );
+
+    res.json(membersWithDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
-
-router.get("/viewmember", async (req, res) => {
-    try {
-        const millisecondsPerDay = 24 * 60 * 60 * 1000;
-
-        let projection = "-id -__v -age -place -height -weight -bloodGroup -password";
-        let members = await MemberModel.find({}, projection);
-
-        let membersWithDueAmount = await Promise.all(members.map(async (member) => {
-            try {
-                const { packageId, lastPackageUpdateDate } = member;
-                let packageDetails = await PackageModel.findById(packageId);
-                if (!packageDetails) {
-                    throw new Error("Package not found");
-                }
-                const dueAmount = await calculateDueAmount(
-                    packageDetails.packageAmount,
-                    member.registerDate,
-                    lastPackageUpdateDate,
-                    null,
-                    millisecondsPerDay
-                );
-                let remainingDaysForNextDue = null;
-                if (lastPackageUpdateDate) {
-                    remainingDaysForNextDue = 30;
-                } else {
-                    remainingDaysForNextDue = Math.max(0, 30 - Math.round((new Date() - member.registerDate) / millisecondsPerDay));
-                }
-
-                return {
-                    ...member.toObject(),
-                    dueAmount,
-                    remainingDaysForNextDue
-                };
-            } catch (error) {
-                console.error(error);
-                throw new Error("Error");
-            }
-        }));
-
-        res.json(membersWithDueAmount);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
-module.exports = router;
+  
+  
+  module.exports = router;
 
 
 
