@@ -27,4 +27,39 @@ router.post("/addmember",async(req,res)=>
 })
 })
 
+router.post("/signin",async(req,res)=>{
+    let input=req.body
+    let email=req.body.email
+    let data=await MemberModel.findOne({"email":email})
+    if(!data)
+    {
+        return res.json({status:"incorrect email id"})
+    }
+    console.log(data)
+    let dbPassword=data.password
+    let inputPassword=req.body.password
+    console.log(dbPassword)
+    console.log(inputPassword)
+
+    const match=await bcrypt.compare(inputPassword,dbPassword)
+    if(!match)
+    {
+        return res.json({status:"incorrect password"})
+    }
+
+    res.json({
+        status: "success",
+        "userdata": {
+          name: data.name,
+          place:data.place,
+          age:data.age,
+          height:data.height,
+          weight:data.weight,
+          bloodGroup:data.bloodGroup
+          // Add any other properties you want to include
+        }
+    })
+    
+})
+
 module.exports=router
