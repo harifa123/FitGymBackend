@@ -66,4 +66,12 @@ router.post("/deletemember",async(req,res)=>{
     })
 })
 
+router.post("/viewprofile", async (req, res) => {
+    let data = req.body
+    console.log(data)
+    let result = await MemberModel.find({_id:data}).populate("packageId","packageName packageDes packageAmount -_id").exec()
+    console.log(result)
+    res.json(result)
+})
+
 module.exports=router
