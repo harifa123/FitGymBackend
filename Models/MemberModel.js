@@ -33,6 +33,11 @@ const memberSchema=new mongoose.Schema(
             type:String,
             required:true
         },
+        packageId:{
+            type:mongoose.Schema.Types.ObjectId,
+            required:true,
+            ref:"gymPackage"
+        },
         registerDate:{
             type:Date,
             default:Date.now
