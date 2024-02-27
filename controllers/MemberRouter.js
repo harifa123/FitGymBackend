@@ -42,7 +42,6 @@ router.post("/addmember", async (req, res) => {
             try {
                 let member = new MemberModel(data);
                 member.previousPackageAmount = package.packageAmount;
-                //member.lastPackageUpdateDate = new Date();
                 let result = await member.save();
                 res.json({ status: "success" });
             } catch (error) {
@@ -62,38 +61,29 @@ router.get("/view_all", async (req, res) => {
       members.map(async (member) => {
         let dueAmount = 0;
         let remainingDaysForNextDue = 0;
-
         const currentDate = new Date();
         const registrationDate = new Date(member.registerDate);
         const lastUpdateDate = member.lastPackageUpdateDate ? new Date(member.lastPackageUpdateDate) : null;
-
         console.log("Current Date:", currentDate);
         console.log("Registration Date:", registrationDate);
-
-        // Calculate total days since registration
         const daysWorked = Math.ceil(
           (currentDate - registrationDate) / (1000 * 60 * 60 * 24)
         );
 
         console.log("Days Worked:", daysWorked);
-
-        // Calculate remaining days for next due payment
         remainingDaysForNextDue = 30 - (daysWorked % 30);
 
         console.log("Remaining Days for Next Due:", remainingDaysForNextDue);
 
         let oldPackageAmount = 0;
         if (lastUpdateDate) {
-          // Use the explicitly stored previous package price
           oldPackageAmount = member.previousPackageAmount;
           const oldPackageAmountperwrok = parseFloat(oldPackageAmount) / 30 * daysWorked;
-          console.log("oldPackageAmountperwrok:", oldPackageAmountperwrok); // Access directly from member object
-
+          console.log("oldPackageAmountperwrok:", oldPackageAmountperwrok);
           const newPackageAmount = (parseFloat(member.packageId.packageAmount) / 30) * remainingDaysForNextDue;
           console.log("newPackageAmount:", newPackageAmount);
           dueAmount = oldPackageAmountperwrok + newPackageAmount;
         } else {
-          // No update, use current package directly
           oldPackageAmount = (parseFloat(member.previousPackageAmount));
           dueAmount = oldPackageAmount;
         }
