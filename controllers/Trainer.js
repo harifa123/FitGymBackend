@@ -42,7 +42,7 @@ router.post("/signintrainer", async(req,res)=>{
         return res.json({status:"Incorrect password"})
     }
 
-    res.json({status:"success", "trainer data":data})
+    res.json({status:"success", "trainerdata":data})
 })
 
 router.get("/viewtrainers", async(req,res)=>{
