@@ -1,49 +1,54 @@
 const express = require("express")
-const packageModel = require("../Models/Package")
-const memberModel=require("../Models/MemberModel")
-const updatePackageModel=require("../Models/updateModel")
+const PackageModel = require("../Models/Package")
+const MemberModel = require("../Models/MemberModel")
+const UpdatePackageModel = require("../Models/updateModel");
 
 const router = express.Router()
 
 router.post("/addpackage",async(req,res)=>{
     let data = req.body
-    let addPackage = packageModel(data)
+    let addPackage = PackageModel(data)
     let result = addPackage.save()
-    res.json({status:"success"})
+    res.json({status:"successs"})
 })
 
 router.post("/updatepackage", async (req, res) => {
-    let eMail = req.body.email
-    let userdata = await memberModel.findOne({ "email": eMail })
-    // console.log(userdata)
-    if (!userdata) {
-        return res.json({ status: "invalid user" })
-    }
-    let package_name = req.body.packagename
-    let packagedata = await packageModel.findOne({ "packageName": package_name })
-    if (!packagedata) {
-        return res.json({ status: "invalid package" })
-    }
+    try {
+        const email = req.body.email;
+        const packageName = req.body.packagename;
+        const user = await MemberModel.findOne({ "email": email });
+        if (!user) {
+            return res.json({ status: "invalid user" });
+        }
+        const packageData = await PackageModel.findOne({ "packageName": packageName });
+        if (!packageData) {
+            return res.json({ status: "invalid package" });
+        }
 
-    let userid = userdata._id
-    let packageid = packagedata._id
-    let result = await memberModel.updateOne({ "email": eMail }, { $set: { packageId: packageid } })
-    // let data = req.body
-    let existingEntry = await updatePackageModel.findOne({ "userId": userid })
+        const userId = user._id;
+        const packageId = packageData._id;
+        await MemberModel.findByIdAndUpdate(userId, {
+            $set: {
+                packageId: packageId,
+                lastPackageUpdateDate: new Date()
+            }
+        });
+        await UpdatePackageModel.findOneAndUpdate(
+            { userId: userId },
+            { $set: { packageId: packageId } },
+            { upsert: true }
+        );
 
-    if (existingEntry) {
-        let newUpdate = await updatePackageModel.updateOne({ "userId": userid }, { $set: { packageId: packageid } })
+        res.json({ status: "success" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: "Internal Server Error" });
     }
-    else {
-        let update = new updatePackageModel({ userId: userid, packageId: packageid })
-        let dataSave = await update.save()
-    }
-    res.json({ status: "success" })
+});
 
-})
 
 router.get("/viewallpackage", async (req, res) => {
-    let data = await packageModel.find()
+    let data = await PackageModel.find()
     res.json(data)
 })
 

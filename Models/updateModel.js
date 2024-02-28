@@ -1,4 +1,3 @@
-// pacakge update model
 const mongoose=require("mongoose")
 const updatePackageSchema=new mongoose.Schema(
     {
@@ -10,7 +9,7 @@ const updatePackageSchema=new mongoose.Schema(
         packageId:{
             type:mongoose.Schema.Types.ObjectId,
             required:true,
-            ref:"gymPackage"
+            ref:"package"
         },
         updatedDate:{
             type:Date,
