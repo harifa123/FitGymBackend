@@ -8,4 +8,4 @@ const addPackageSchema = mongoose.Schema(
     }
 )
 
-module.exports = mongoose.model("gymPackage", addPackageSchema)
+module.exports = mongoose.model("package", addPackageSchema)
