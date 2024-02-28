@@ -53,7 +53,7 @@ router.post("/addmember", async (req, res) => {
     }
 });
 
-router.get("/view_all", async (req, res) => {
+router.get("/viewDue", async (req, res) => {
     try {
       const members = await MemberModel.find().populate("packageId");
   
@@ -107,6 +107,60 @@ router.get("/view_all", async (req, res) => {
     }
   });
 
+  router.post("/viewDuemember", async (req, res) => {
+    try {
+        const { email } = req.body;
+        const member = await MemberModel.findOne({ email }).populate("packageId");
+
+        if (!member) {
+            return res.status(404).json({ message: "Member not found" });
+        }
+
+        let dueAmount = 0;
+        let remainingDaysForNextDue = 0;
+        const currentDate = new Date();
+        const registrationDate = new Date(member.registerDate);
+        const lastUpdateDate = member.lastPackageUpdateDate ? new Date(member.lastPackageUpdateDate) : null;
+        console.log("Current Date:", currentDate);
+        console.log("Registration Date:", registrationDate);
+        const daysWorked = Math.ceil(
+            (currentDate - registrationDate) / (1000 * 60 * 60 * 24)
+        );
+
+        console.log("Days Worked:", daysWorked);
+        remainingDaysForNextDue = 30 - (daysWorked % 30);
+
+        console.log("Remaining Days for Next Due:", remainingDaysForNextDue);
+
+        let oldPackageAmount = 0;
+        if (lastUpdateDate) {
+            oldPackageAmount = member.previousPackageAmount;
+            const oldPackageAmountperwrok = parseFloat(oldPackageAmount) / 30 * daysWorked;
+            console.log("oldPackageAmountperwrok:", oldPackageAmountperwrok);
+            const newPackageAmount = (parseFloat(member.packageId.packageAmount) / 30) * remainingDaysForNextDue;
+            console.log("newPackageAmount:", newPackageAmount);
+            dueAmount = oldPackageAmountperwrok + newPackageAmount;
+        } else {
+            oldPackageAmount = parseFloat(member.previousPackageAmount);
+            dueAmount = oldPackageAmount;
+        }
+
+        console.log("Due Amount:", dueAmount);
+
+        res.json({
+            name: member.name,
+            email: member.email,
+            package_name: member.packageId ? member.packageId.packageName : "No Package",
+            dueAmount: dueAmount.toFixed(2),
+            remainingDaysForNextDue: remainingDaysForNextDue >= 0 ? remainingDaysForNextDue : 0,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
 router.post("/signin",async(req,res)=>{
     let input=req.body
     let email=req.body.email
@@ -145,12 +199,41 @@ router.post("/deletemember",async(req,res)=>{
     })
 })
 
-router.post("/viewprofile", async (req, res) => {
-    let data = req.body
-    console.log(data)
-    let result = await MemberModel.find({_id:data}).populate("packageId","packageName packageDes packageAmount -_id").exec()
-    console.log(result)
-    res.json(result)
+
+router.post("/viewmemberpackage", async (req, res) => {
+
+    const { email } = req.body;
+    const member = await MemberModel.findOne({ email });
+    const packageId = member.packageId;
+    const packageDetails = await PackageModel.findById(packageId,"-_id -__v");
+    res.json(packageDetails);
+
 })
+
+
+router.get("/viewallmembers", async (req, res) => {
+    let projection = "-id -_v -age -place -height -weight -bloodGroup -password"; 
+    let result = await MemberModel.find({}, projection); 
+    res.json(result);
+})
+
+router.post("/viewmemberprofile",async(req,res)=>
+{
+    const { email } = req.body;
+    const member = await MemberModel.findOne({ email });
+    const memberDetails = {
+        name: member.name,
+        place: member.place,
+        age:member.age,
+        height:member.height,
+        weight:member.weight,
+        bloodGroup:member.bloodGroup,
+        email:member.email,
+        registerDate:member.registerDate
+        
+    };
+    res.json(memberDetails);
+})
+
 
 module.exports=router
