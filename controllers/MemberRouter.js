@@ -212,7 +212,7 @@ router.post("/viewmemberpackage", async (req, res) => {
 
 
 router.get("/viewallmembers", async (req, res) => {
-    let projection = "-id -_v -age -place -height -weight -bloodGroup -password"; 
+    let projection = "-id -_v"; 
     let result = await MemberModel.find({}, projection); 
     res.json(result);
 })
