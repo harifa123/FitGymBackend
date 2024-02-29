@@ -3,6 +3,7 @@ const MemberModel = require("../Models/MemberModel")
 const bcrypt = require("bcryptjs")
 const PackageModel = require("../Models/Package");
 const UpdateModel = require("../Models/updateModel");
+const jwt=require("jsonwebtoken")
 
 async function hashPasswordGenerator(password) {
     try {
@@ -181,13 +182,30 @@ router.post("/signin",async(req,res)=>{
         return res.json({status:"incorrect password"})
     }
     
-    res.json({status:"success","userdata":data})
+   jwt.sign({email:email},"gymapp",{expiresIn:"1d"},
+   (error,token)=>{
+    if (error) {
+        res.json(
+            {
+                "status":"error",
+                "error":error
+
+            }
+        )
+
+        
+    } else {
+        res.json({status:"success","userdata":data,"token":token})
+        
+    }
+   })
     
 })
 router.post("/search",async(req,res)=>
 {
     let input=req.body
     let data=await MemberModel.find(input)
+    
     res.json(data)
 })
 
@@ -219,7 +237,10 @@ router.get("/viewallmembers", async (req, res) => {
 
 router.post("/viewmemberprofile",async(req,res)=>
 {
-    const { email } = req.body;
+    const token=req.headers["token"]
+    jwt.verify(token,"gymapp",async(error,decoded)=>{
+        if (decoded && decoded.email) {
+            const { email } = req.body;
     const member = await MemberModel.findOne({ email });
     const memberDetails = {
         name: member.name,
@@ -233,6 +254,16 @@ router.post("/viewmemberprofile",async(req,res)=>
         
     };
     res.json(memberDetails);
+            
+        } else {
+            res.json(
+                {
+                    "status":"unauthorised user"
+                }
+            )
+            
+        }
+    })
 })
 
 
