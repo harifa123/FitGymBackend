@@ -222,6 +222,7 @@ router.post("/viewmemberdetails", async (req, res) => {
 
                 // Add package details and payment due to member data
                 const memberDataWithDetails = {
+                    _id:member._id,
                     name: member.name,
                     place: member.place,
                     age:member.age,
