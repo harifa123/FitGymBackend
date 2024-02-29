@@ -2,6 +2,7 @@ const express = require("express")
 const PackageModel = require("../Models/Package")
 const MemberModel = require("../Models/MemberModel")
 const UpdatePackageModel = require("../Models/updateModel");
+const Package = require("../Models/Package");
 
 const router = express.Router()
 
@@ -49,6 +50,15 @@ router.post("/updatepackage", async (req, res) => {
 
 router.get("/viewallpackage", async (req, res) => {
     let data = await PackageModel.find()
+    res.json(data)
+})
+
+router.post("/searchpackage",async(req,res)=>
+{
+    let input=req.body
+    let data=await Package.find(input)
+    .populate("packageId","packageName  -_id")//mention only required field,userid is not displayed
+    .exec()
     res.json(data)
 })
 
