@@ -222,7 +222,6 @@ router.post("/viewmemberdetails", async (req, res) => {
 
                 // Add package details and payment due to member data
                 const memberDataWithDetails = {
-                    _id:member._id,
                     name: member.name,
                     place: member.place,
                     age:member.age,
@@ -256,6 +255,21 @@ router.post("/deletemember",async(req,res)=>{
         "status":"success"
     })
 })
+
+router.post("/deletemember", async (req, res) => {
+    try {
+      const { _id } = req.body;
+      const response = await MemberModel.deleteOne({ _id });
+      if (response.deletedCount === 1) {
+        res.json({ status: "success" });
+      } else {
+        res.status(404).json({ status: "error", message: "Member not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      res.status(500).json({ status: "error", message: "Internal server error" });
+    }
+  });
 
 
 router.post("/viewmemberpackage", async (req, res) => {
