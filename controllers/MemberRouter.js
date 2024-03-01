@@ -257,7 +257,7 @@ router.post("/viewmemberdetails", async (req, res) => {
     }
 });
 
-router.post("/deletemembers", async (req, res) => {
+router.post("/deletemember", async (req, res) => {
     try {
       const { _id } = req.body;
       const response = await MemberModel.deleteOne({ _id });
@@ -281,13 +281,7 @@ router.post("/search",async(req,res)=>
     res.json(data)
 })
 
-router.post("/deletemember",async(req,res)=>{
-    let input=req.body
-    let response=await MemberModel.deleteOne(input)
-    res.json({
-        "status":"success"
-    })
-})
+
 
 
 router.post("/viewmemberpackage", async (req, res) => {
