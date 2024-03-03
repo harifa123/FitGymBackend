@@ -18,7 +18,7 @@ const router=express.Router()
 
 router.get("/packages", async (req, res) => {
     try {
-        const packages = await PackageModel.find({}, 'packageName _id');
+        const packages = await PackageModel.find();
         res.json(packages);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -91,6 +91,7 @@ router.get("/viewDue", async (req, res) => {
           console.log("Due Amount:", dueAmount);
   
           return {
+            id: member._id,
             name: member.name,
             email: member.email,
             package_name: member.packageId.packageName,
@@ -248,13 +249,6 @@ router.post("/viewmemberdetails", async (req, res) => {
 
 
 
-router.post("/deletemember",async(req,res)=>{
-    let input=req.body
-    let response=await MemberModel.deleteOne(input)
-    res.json({
-        "status":"success"
-    })
-})
 
 router.post("/deletemember", async (req, res) => {
     try {
