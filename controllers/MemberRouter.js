@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.get("/packages", async (req, res) => {
     try {
-        const packages = await PackageModel.find({}, 'packageName _id');
+        const packages = await PackageModel.find();
         res.json(packages);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -91,6 +91,7 @@ router.get("/view_all", async (req, res) => {
         console.log("Due Amount:", dueAmount);
 
         return {
+          id: member._id,
           name: member.name,
           email: member.email,
           package_name: member.packageId.packageName,
@@ -106,9 +107,25 @@ router.get("/view_all", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+router.post("/deletemember", async (req, res) => {
+    try {
+      const { _id } = req.body;
+      const response = await MemberModel.deleteOne({ _id });
+      if (response.deletedCount === 1) {
+        res.json({ status: "success" });
+      } else {
+        res.status(404).json({ status: "error", message: "Member not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      res.status(500).json({ status: "error", message: "Internal server error" });
+    }
+  });
   
   
-  module.exports = router;
+  
+module.exports = router;
 
 
 

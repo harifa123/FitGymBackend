@@ -9,7 +9,7 @@ router.post("/addpackage",async(req,res)=>{
     let data = req.body
     let addPackage = PackageModel(data)
     let result = addPackage.save()
-    res.json({status:"successs"})
+    res.json({status:"success"})
 })
 
 router.post("/updatepackage", async (req, res) => {

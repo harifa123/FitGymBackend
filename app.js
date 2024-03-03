@@ -1,7 +1,7 @@
 const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
-const trainerrouter = require("./controllers/Trainer")
+//const trainerrouter = require("./controllers/Trainer")
 const packageRouter = require("./controllers/PackageRouter")
 const memberRouter = require("./controllers/MemberRouter")
 
@@ -11,13 +11,13 @@ app.use(express.json())
 app.use(cors())
 
 
- mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymDb?retryWrites=true&w=majority",
+ mongoose.connect("mongodb+srv://anex:anex123@cluster0.bgkikbl.mongodb.net/fitdemogymDb?retryWrites=true&w=majority",
  {
     useNewUrlParser:true
 })
 
 
-app.use('/api/trainer', trainerrouter)
+//app.use('/api/trainer', trainerrouter)
 
 app.use("/api/package", packageRouter)
 
