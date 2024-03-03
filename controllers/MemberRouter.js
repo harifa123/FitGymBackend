@@ -3,7 +3,7 @@ const MemberModel = require("../Models/MemberModel")
 const bcrypt = require("bcryptjs")
 const PackageModel = require("../Models/Package");
 const UpdateModel = require("../Models/updateModel");
-const jwt=require("jsonwebtoken")
+//const jwt=require("jsonwebtoken")
 
 async function hashPasswordGenerator(password) {
     try {
@@ -19,7 +19,7 @@ const router=express.Router()
 
 router.get("/packages", async (req, res) => {
     try {
-        const packages = await PackageModel.find({}, 'packageName _id');
+        const packages = await PackageModel.find();
         res.json(packages);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -92,6 +92,7 @@ router.get("/viewDue", async (req, res) => {
           console.log("Due Amount:", dueAmount);
   
           return {
+            id: member._id,
             name: member.name,
             email: member.email,
             package_name: member.packageId.packageName,
@@ -182,23 +183,23 @@ router.post("/signin",async(req,res)=>{
         return res.json({status:"incorrect password"})
     }
     
-   jwt.sign({email:email},"gymapp",{expiresIn:"1d"},
-   (error,token)=>{
-    if (error) {
-        res.json(
-            {
-                "status":"error",
-                "error":error
+   //jwt.sign({email:email},"gymapp",{expiresIn:"1d"},
+   //(error,token)=>{
+    //if (error) {
+     //   res.json(
+      //      {
+       //         "status":"error",
+       //         "error":error
 
-            }
-        )
+       //     }
+       // )
 
         
-    } else {
-        res.json({status:"success","userdata":data,"token":token})
+   // } else {
+     //   res.json({status:"success","userdata":data,"token":token})
         
-    }
-   })
+   // }
+  // })
     
 })
 
