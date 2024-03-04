@@ -41,6 +41,25 @@ router.post("/signintrainer", async(req,res)=>{
     {
         return res.json({status:"Incorrect password"})
     }
+//     jwt.sign({emailid:emailid},"fitgym",{expiresIn:"1d"},
+//     (error,trainertoken)=>{
+//      if (error) {
+//          res.json(
+//              {
+//                  "status":"error",
+//                  "error":error
+ 
+//              }
+//          )
+ 
+         
+//      } else {
+//          res.json({status:"success","userdata":data,"trainertoken":trainertoken})
+         
+//      }
+//     })
+     
+//  })
 
     res.json({status:"success", "trainerdata":data})
 })
