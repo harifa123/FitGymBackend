@@ -4,6 +4,7 @@ const mongoose = require("mongoose")
 //const trainerrouter = require("./controllers/Trainer")
 const packageRouter = require("./controllers/PackageRouter")
 const memberRouter = require("./controllers/MemberRouter")
+const transactionRouter = require("./controllers/TransactionRouter")
 
 const app = express()
 
@@ -11,7 +12,7 @@ app.use(express.json())
 app.use(cors())
 
 
-mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymdemoDb?retryWrites=true&w=majority",
+mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net/gymdemoanexDb?retryWrites=true&w=majority",
 {
    useNewUrlParser:true
 })
@@ -23,6 +24,8 @@ mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net
 app.use("/api/package", packageRouter)
 
 app.use("/api/member", memberRouter)
+
+app.use("/api/transaction", transactionRouter)
 
 app.listen(3001, () => {
     console.log("Server Running")
