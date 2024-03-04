@@ -33,10 +33,7 @@ const memberSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  fee: {
-    type: String,
-    required: true
-  },
+ 
   registerDate: {
     type: Date,
     default: Date.now
