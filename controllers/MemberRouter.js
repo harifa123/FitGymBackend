@@ -3,7 +3,7 @@ const MemberModel = require("../Models/MemberModel")
 const bcrypt = require("bcryptjs")
 const PackageModel = require("../Models/Package");
 const UpdateModel = require("../Models/updateModel");
-//const jwt=require("jsonwebtoken")
+const jwt=require("jsonwebtoken")
 
 async function hashPasswordGenerator(password) {
     try {
@@ -183,23 +183,23 @@ router.post("/signin",async(req,res)=>{
         return res.json({status:"incorrect password"})
     }
     
-   //jwt.sign({email:email},"gymapp",{expiresIn:"1d"},
-   //(error,token)=>{
-    //if (error) {
-     //   res.json(
-      //      {
-       //         "status":"error",
-       //         "error":error
+   jwt.sign({email:email},"gymapp",{expiresIn:"1d"},
+   (error,token)=>{
+    if (error) {
+       res.json(
+           {
+               "status":"error",
+               "error":error
 
-       //     }
-       // )
+           }
+       )
 
         
-   // } else {
-     //   res.json({status:"success","userdata":data,"token":token})
+   } else {
+       res.json({status:"success","userdata":data,"token":token})
         
-   // }
-  // })
+   }
+  })
     
 })
 
