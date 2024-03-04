@@ -207,8 +207,6 @@ router.post("/viewmemberdetails", async (req, res) => {
     try {
         let input = req.body;
         let data = await MemberModel.find(input).populate("packageId");
-
-        // Map each member to include package details and payment due
         const membersWithDetails = await Promise.all(
             data.map(async (member) => {
                 let dueAmount = 0;
@@ -231,8 +229,6 @@ router.post("/viewmemberdetails", async (req, res) => {
                     oldPackageAmount = parseFloat(member.previousPackageAmount);
                     dueAmount = oldPackageAmount;
                 }
-
-                // Add package details and payment due to member data
                 const memberDataWithDetails = {
                     name: member.name,
                     place: member.place,
@@ -243,7 +239,7 @@ router.post("/viewmemberdetails", async (req, res) => {
                     email: member.email,
                     registerDate:member.registerDate,
                     package_name: member.packageId.packageName,
-                    package_amount:member.packageId.packageAmount, // Include the entire package details
+                    package_amount:member.packageId.packageAmount,
                     dueAmount: dueAmount.toFixed(2),
                     remainingDaysForNextDue: remainingDaysForNextDue >= 0 ? remainingDaysForNextDue : 0,
                 };
@@ -278,11 +274,8 @@ router.post("/search",async(req,res)=>
 {
     let input=req.body
     let data=await MemberModel.find(input)
-    
     res.json(data)
 })
-
-
 
 
 router.post("/viewmemberpackage", async (req, res) => {
@@ -332,6 +325,8 @@ router.post("/viewmemberprofile",async(req,res)=>
         }
     })
 })
+
+
 
 
 module.exports=router

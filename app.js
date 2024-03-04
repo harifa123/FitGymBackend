@@ -1,7 +1,7 @@
 const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
-const trainerrouter = require("./controllers/Trainer")
+//const trainerrouter = require("./controllers/Trainer")
 const packageRouter = require("./controllers/PackageRouter")
 const memberRouter = require("./controllers/MemberRouter")
 
@@ -18,7 +18,7 @@ mongoose.connect("mongodb+srv://harifa123:harifa123@cluster0.j6vqcp5.mongodb.net
 
 
 
-app.use('/api/trainer', trainerrouter)
+//app.use('/api/trainer', trainerrouter)
 
 app.use("/api/package", packageRouter)
 
