@@ -6,6 +6,7 @@ const packageRouter = require("./controllers/PackageRouter")
 const memberRouter = require("./controllers/MemberRouter")
 const adminRouter = require("./controllers/AdminRouter")
 
+
 const app = express()
 
 app.use(express.json())
@@ -26,6 +27,8 @@ app.use("/api/package", packageRouter)
 app.use("/api/member", memberRouter)
 
 app.use("/api/admin", adminRouter)
+
+
 
 app.listen(3001, () => {
     console.log("Server Running")
