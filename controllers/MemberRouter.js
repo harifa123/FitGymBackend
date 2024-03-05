@@ -334,5 +334,13 @@ router.post("/viewmemberprofile",async(req,res)=>
     })
 })
 
+router.post("/deletemember",async(req,res)=>{
+    let input=req.body
+    let response=await MemberModel.deleteOne(input)
+    res.json({
+        "status":"success"
+    })
+})
+
 
 module.exports=router

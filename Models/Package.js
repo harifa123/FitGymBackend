@@ -4,7 +4,9 @@ const addPackageSchema = mongoose.Schema(
     {
         packageName: String,
         packageDes: String,
-        packageAmount: String
+        packageAmount: String,
+        
+        
     }
 )
 
