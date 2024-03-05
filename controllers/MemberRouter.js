@@ -200,6 +200,10 @@ router.post("/signin",async(req,res)=>{
         
    // }
   // })
+  else {
+      res.json({status:"success","userdata":data})
+       
+   }
     
 })
 
