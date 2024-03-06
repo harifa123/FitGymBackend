@@ -303,9 +303,9 @@ router.get("/viewallmembers", async (req, res) => {
 
 router.post("/viewmemberprofile",async(req,res)=>
 {
-    const token=req.headers["token"]
-    jwt.verify(token,"gymapp",async(error,decoded)=>{
-        if (decoded && decoded.email) {
+    // const token=req.headers["token"]
+    // jwt.verify(token,"gymapp",async(error,decoded)=>{
+    //     if (decoded && decoded.email) {
             const { email } = req.body;
     const member = await MemberModel.findOne({ email });
     const memberDetails = {
@@ -321,15 +321,15 @@ router.post("/viewmemberprofile",async(req,res)=>
     };
     res.json(memberDetails);
             
-        } else {
-            res.json(
-                {
-                    "status":"unauthorised user"
-                }
-            )
+    //     } else {
+    //         res.json(
+    //             {
+    //                 "status":"unauthorised user"
+    //             }
+    //         )
             
-        }
-    })
+    //     }
+    // })
 })
 
 router.post("/deletemember",async(req,res)=>{
