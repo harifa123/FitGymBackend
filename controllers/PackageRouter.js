@@ -14,13 +14,13 @@ router.post("/addpackage",async(req,res)=>{
 
 router.post("/updatepackage", async (req, res) => {
     try {
-        const email = req.body.email;
-        const packageName = req.body.packagename;
-        const user = await MemberModel.findOne({ "email": email });
+        const _id = req.body._id;
+        const packagename = req.body.packagename;
+        const user = await MemberModel.findOne({ "_id": _id });
         if (!user) {
             return res.json({ status: "invalid user" });
         }
-        const packageData = await PackageModel.findOne({ "packageName": packageName });
+        const packageData = await PackageModel.findOne({ "packagename": packagename });
         if (!packageData) {
             return res.json({ status: "invalid package" });
         }
