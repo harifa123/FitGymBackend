@@ -1,8 +1,16 @@
 const mongoose = require('mongoose');
 
 const packageChangeRequestSchema = new mongoose.Schema({
-    userId: String,
-    newPackageId: String,
+    userId:{
+        type:mongoose.Schema.Types.ObjectId,
+        required:true,
+        ref:"member"
+    },
+    newPackageId: {
+        type:mongoose.Schema.Types.ObjectId,
+        required:true,
+        ref:"package"
+    },
     status: { type: String, default: 'pending' } // Status can be 'pending', 'approved', or 'rejected'
 });
 
