@@ -22,7 +22,16 @@ const transactionSchema = new mongoose.Schema({
   transactionAmount: {
     type: Number,
     required: true
-  }
+  },
+  usedDays: {
+    type: Number
+},
+packageName: {
+    type: String
+},
+packageAmount: {
+    type: Number
+}
 });
 
 module.exports = mongoose.model("transaction", transactionSchema);

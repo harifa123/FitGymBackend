@@ -118,17 +118,68 @@ router.post('/view-transactions-by-email', async (req, res) => {
     try {
         const email = req.body.email;
 
-        // Find the memberId corresponding to the given email
+        // Find the member corresponding to the given email
         const member = await MemberModel.findOne({ email });
 
         if (!member) {
             return res.status(404).json({ status: "Member not found" });
         }
 
-        // Find all transactions for the found memberId with status = due
-        const transactions = await TransactionModel.find({ memberId: member._id, status: "due" });
+        // Find all transactions for the found member
+        const transactions = await TransactionModel.find({ memberId: member._id });
 
-        res.json(transactions);
+        // Prepare detailed transaction history with individual dues
+        const transactionHistory = [];
+        let totalDues = 0;
+
+        for (const transaction of transactions) {
+            let packageName = "";
+            let packageAmount = 0;
+            let remainingDays = 0;
+            let dues = 0;
+
+            // Get package details from the transaction
+            const packageData = await PackageModel.findById(transaction.packageId);
+            if (packageData) {
+                packageName = packageData.packageName;
+                packageAmount = parseFloat(packageData.packageAmount);
+                remainingDays = 31;
+            }
+
+            // Calculate dues for the old package
+            if (transaction.status === "due" && transaction.transactionAmount < 0) {
+                dues = -transaction.transactionAmount;
+            }
+
+            // Calculate dues for the new package
+            if (transaction.status === "due" && transaction.transactionAmount > 0) {
+                dues = transaction.transactionAmount;
+            }
+
+            // Update total dues
+            totalDues += dues;
+
+            // Add transaction details to the history
+            transactionHistory.push({
+                transactionId: transaction._id,
+                packageName,
+                packageAmount,
+                remainingDays,
+                dues,
+                status: transaction.status
+            });
+        }
+
+        // Prepare the response
+        const response = {
+            status: "success",
+            name: member.name,
+            email: member.email,
+            totalDues,
+            transactionHistory
+        };
+
+        res.json(response);
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: "Internal Server Error" });
