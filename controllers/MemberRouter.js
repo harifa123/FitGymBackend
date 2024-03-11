@@ -19,7 +19,7 @@ const router=express.Router()
 
 router.get("/packages", async (req, res) => {
     try {
-        const packages = await PackageModel.find({}, 'packageName _id');
+        const packages = await PackageModel.find();
         res.json(packages);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -92,6 +92,7 @@ router.get("/viewDue", async (req, res) => {
           console.log("Due Amount:", dueAmount);
   
           return {
+            id: member._id,
             name: member.name,
             email: member.email,
             package_name: member.packageId.packageName,
@@ -185,77 +186,92 @@ router.post("/signin",async(req,res)=>{
    jwt.sign({email:email},"gymapp",{expiresIn:"1d"},
    (error,token)=>{
     if (error) {
-        res.json(
-            {
-                "status":"error",
-                "error":error
+       res.json(
+           {
+               "status":"error",
+               "error":error
 
-            }
-        )
+           }
+       )
 
         
-    } else {
+   }
+     else {
         res.json({status:"success","userdata":data,"token":token})
         
     }
-   })
+  })
     
 })
 
 router.post("/viewmemberdetails", async (req, res) => {
-    try {
-        let input = req.body;
-        let data = await MemberModel.find(input).populate("packageId");
-
-        // Map each member to include package details and payment due
-        const membersWithDetails = await Promise.all(
-            data.map(async (member) => {
-                let dueAmount = 0;
-                let remainingDaysForNextDue = 0;
-                const currentDate = new Date();
-                const registrationDate = new Date(member.registerDate);
-                const lastUpdateDate = member.lastPackageUpdateDate ? new Date(member.lastPackageUpdateDate) : null;
-                const daysWorked = Math.ceil(
-                    (currentDate - registrationDate) / (1000 * 60 * 60 * 24)
+    const token=req.headers["token"]
+    jwt.verify(token,"gymapp",async(error,decoded)=>{
+        if (decoded && decoded.email){
+            try {
+                let input = req.body;
+                let data = await MemberModel.find(input).populate("packageId");
+        
+                // Map each member to include package details and payment due
+                const membersWithDetails = await Promise.all(
+                    data.map(async (member) => {
+                        let dueAmount = 0;
+                        let remainingDaysForNextDue = 0;
+                        const currentDate = new Date();
+                        const registrationDate = new Date(member.registerDate);
+                        const lastUpdateDate = member.lastPackageUpdateDate ? new Date(member.lastPackageUpdateDate) : null;
+                        const daysWorked = Math.ceil(
+                            (currentDate - registrationDate) / (1000 * 60 * 60 * 24)
+                        );
+                        remainingDaysForNextDue = 30 - (daysWorked % 30);
+        
+                        let oldPackageAmount = 0;
+                        if (lastUpdateDate) {
+                            oldPackageAmount = parseFloat(member.previousPackageAmount);
+                            const oldPackageAmountperwork = parseFloat(oldPackageAmount) / 30 * daysWorked;
+                            const newPackageAmount = (parseFloat(member.packageId.packageAmount) / 30) * remainingDaysForNextDue;
+                            dueAmount = oldPackageAmountperwork + newPackageAmount;
+                        } else {
+                            oldPackageAmount = parseFloat(member.previousPackageAmount);
+                            dueAmount = oldPackageAmount;
+                        }
+        
+                        // Add package details and payment due to member data
+                        const memberDataWithDetails = {
+                            name: member.name,
+                            place: member.place,
+                            age:member.age,
+                            height:member.height,
+                            weight:member.weight,
+                            bloodGroup:member.bloodGroup,
+                            email: member.email,
+                            registerDate:member.registerDate,
+                            package_name: member.packageId.packageName,
+                            package_amount:member.packageId.packageAmount, // Include the entire package details
+                            dueAmount: dueAmount.toFixed(2),
+                            remainingDaysForNextDue: remainingDaysForNextDue >= 0 ? remainingDaysForNextDue : 0,
+                        };
+                        return memberDataWithDetails;
+                    })
                 );
-                remainingDaysForNextDue = 30 - (daysWorked % 30);
-
-                let oldPackageAmount = 0;
-                if (lastUpdateDate) {
-                    oldPackageAmount = parseFloat(member.previousPackageAmount);
-                    const oldPackageAmountperwork = parseFloat(oldPackageAmount) / 30 * daysWorked;
-                    const newPackageAmount = (parseFloat(member.packageId.packageAmount) / 30) * remainingDaysForNextDue;
-                    dueAmount = oldPackageAmountperwork + newPackageAmount;
-                } else {
-                    oldPackageAmount = parseFloat(member.previousPackageAmount);
-                    dueAmount = oldPackageAmount;
+        
+                res.json(membersWithDetails);
+            } 
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ message: "Internal server error" });
+            }
+        }
+        else {
+            res.json(
+                {
+                    "status":"unauthorised user"
                 }
-
-                // Add package details and payment due to member data
-                const memberDataWithDetails = {
-                    name: member.name,
-                    place: member.place,
-                    age:member.age,
-                    height:member.height,
-                    weight:member.weight,
-                    bloodGroup:member.bloodGroup,
-                    email: member.email,
-                    registerDate:member.registerDate,
-                    package_name: member.packageId.packageName,
-                    package_amount:member.packageId.packageAmount, // Include the entire package details
-                    dueAmount: dueAmount.toFixed(2),
-                    remainingDaysForNextDue: remainingDaysForNextDue >= 0 ? remainingDaysForNextDue : 0,
-                };
-                return memberDataWithDetails;
-            })
-        );
-
-        res.json(membersWithDetails);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-});
+            )
+            
+        }
+    })
+})
 
 router.post("/deletemember", async (req, res) => {
     try {
@@ -321,15 +337,16 @@ router.post("/viewmemberprofile",async(req,res)=>
     };
     res.json(memberDetails);
             
-    //     } else {
-    //         res.json(
-    //             {
-    //                 "status":"unauthorised user"
-    //             }
-    //         )
+        } 
+        else {
+            res.json(
+                {
+                    "status":"unauthorised user"
+                }
+            )
             
-    //     }
-    // })
+        }
+    })
 })
 
 router.post("/deletemember",async(req,res)=>{
