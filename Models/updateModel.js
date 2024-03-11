@@ -14,7 +14,11 @@ const updatePackageSchema=new mongoose.Schema(
         updatedDate:{
             type:Date,
             default:Date.now
-        }
+        },
+        previousPackage: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "package"
+          }
     }
 )
 
