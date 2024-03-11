@@ -373,34 +373,33 @@ router.get("/viewallmembers", async (req, res) => {
     res.json(result);
 })
 
-router.post("/viewmemberprofile",async(req,res)=>
-{
-    // const token=req.headers["token"]
-    // jwt.verify(token,"gymapp",async(error,decoded)=>{
-    //     if (decoded && decoded.email) {
+router.post("/viewmemberprofile", async (req, res) => {
+    const token = req.headers["token"]
+    jwt.verify(token, "gymapp", async (error, decoded) => {
+        if (decoded && decoded.email) {
             const { email } = req.body;
-    const member = await MemberModel.findOne({ email });
-    const memberDetails = {
-        name: member.name,
-        place: member.place,
-        age:member.age,
-        height:member.height,
-        weight:member.weight,
-        bloodGroup:member.bloodGroup,
-        email:member.email,
-        registerDate:member.registerDate
-        
-    };
-    res.json(memberDetails);
-            
-        } 
+            const member = await MemberModel.findOne({ email });
+            const memberDetails = {
+                name: member.name,
+                place: member.place,
+                age: member.age,
+                height: member.height,
+                weight: member.weight,
+                bloodGroup: member.bloodGroup,
+                email: member.email,
+                registerDate: member.registerDate
+
+            };
+            res.json(memberDetails);
+
+        }
         else {
             res.json(
                 {
-                    "status":"unauthorised user"
+                    "status": "unauthorised user"
                 }
             )
-            
+
         }
     })
 })
