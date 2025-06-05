@@ -2,6 +2,7 @@ const express = require("express")
 const trainerModel = require("../Models/trainermodel")
 const bcrypt = require("bcryptjs")
 const router = express.Router()
+const jwt=require("jsonwebtoken")
 
 const hashPasswordGenerator = async (pass) => {
     const salt = await bcrypt.genSalt(10);
@@ -22,9 +23,114 @@ router.post('/addtrainer', async (req, res) => {
     }
 })
 
+router.post("/signintrainer", async(req,res)=>{
+    let input = req.body
+    let emailid = req.body.emailid
+    let data = await trainerModel.findOne({"emailid":emailid})
+    if(!data)
+    {
+        return res.json({status:"Incorrect email id"})
+    }
+    console.log(data)
+    let dbPasswordTrainer = data.password
+    let inputPasswordTrainer = req.body.password
+    console.log(dbPasswordTrainer)
+    console.log(inputPasswordTrainer)
+
+    const match = await bcrypt.compare(inputPasswordTrainer,dbPasswordTrainer)
+    if(!match)
+    {
+        return res.json({status:"Incorrect password"})
+    }
+
+    jwt.sign({email:emailid},"fitgym",{expiresIn:"1d"},
+    (error,trainertoken)=>{
+        if (error) {
+            res.json(
+                {
+                "status":"error",
+                "error":error
+            }
+        )
+            
+        } else {
+            res.json({status:"success", "trainerdata":data,"trainertoken":trainertoken})
+            
+            
+        }
+    })
+})
+
+
+    
+
+
 router.get("/viewtrainers", async(req,res)=>{
     let trainers = await trainerModel.find()
     res.json(trainers)
 })
+
+router.post("/searchtrainer",async(req,res)=>{
+    let input = req.body
+    let trainer = await trainerModel.find(input)
+    res.json(trainer)
+})
+
+router.post("/deletetrainer",async(req,res)=>{
+    let input = req.body
+    let response = await trainerModel.deleteOne(input)
+    res.json({status:"success"})
+})
+
+router.post("/viewtrainerprofile",async(req,res)=>
+{
+    const trainertoken=req.headers["trainertoken"]
+    jwt.verify(trainertoken,"fitgym",async(error,decoded)=>{
+
+        if(error){
+            return res.json(
+                {
+                    "status":"error","message":"failed to verify token"
+                }
+            )
+        }
+
+        if (decoded && decoded.email) {
+            const { email } = decoded;
+
+            try{
+                const trainer=await trainerModel.findOne({ emailid: email});
+                if (!trainer) {
+                    return res.status(404).json({ "status": "Trainer not found" });
+                }
+
+            
+
+ 
+
+    
+
+    const trainerDetails = {
+        name: trainer.name,
+        age: trainer.age,
+        emailid:trainer.emailid
+        
+    };
+    res.json(trainerDetails);
+}catch (error) {
+    return res.status(500).json({ "status": "error", "message": "Failed to fetch trainer details" });
+}
+            
+        } else {
+            res.json(
+                {
+                    "status":"unauthorised user"
+                }
+            )
+            
+        }
+    });
+});
+
 module.exports = router
 
